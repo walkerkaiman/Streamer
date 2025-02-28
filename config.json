@@ -1,0 +1,35 @@
+[
+  {
+    "Name": "Tree Fairy Lights",
+    "Location": "Hanging in tree",
+    "IP Address": "192.168.1.10",
+    "Universes": [1, 2],
+    "Channels": [300, 512],
+    "Included in show?": true
+  },
+  {
+    "Name": "Bar Rope Light",
+    "Location": "On the stage",
+    "IP Address": "192.168.1.11",
+    "Universes": [3, 4],
+    "Channels": [240, 300],
+    "Included in show?": true
+  },
+  {
+    "Name": "Ceiling Lights",
+    "Location": "Above the dance floor",
+    "IP Address": "192.168.1.12",
+    "Universes": [5],
+    "Channels": [512],
+    "Included in show?": false
+  },
+  {
+    "Name": "Floor Spotlights",
+    "Location": "On the floor",
+    "IP Address": "192.168.1.13",
+    "Universes": [6, 7],
+    "Channels": [30, 15],
+    "Included in show?": true
+  }
+]
+
