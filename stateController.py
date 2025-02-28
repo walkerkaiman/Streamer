@@ -29,7 +29,8 @@ def on_key_press(key):
                 print("Venue Shutdown Mode.")
                 print("Press Ctrl+c to close State Controller...")
             else:
-                print("Currently in show mode. Switch to loop mode first (press 1) and try again...")
+                print("Currently in show mode.)
+                print("To begin venue shutdown, switch to loop mode first (press 1) and try again...")
 
 def on_key_release(key):
     pass
