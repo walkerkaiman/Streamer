@@ -1,5 +1,6 @@
 import time, os, socket, json
 from pynput import keyboard
+from shows.showPlayer import Show
 
 # Loads sACN IPs from config file
 def load_config(file):
@@ -11,8 +12,8 @@ def on_key_press(key):
 
     if hasattr(key, "char"): 
         if key.char == "0" and current_state == "show":
-            current_state = "loop"
-
+            show.stop_show()            
+            current_state = "loop"            
             udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
             print("Show manually ended early. Returning to loop mode.")
         elif key.char == "1":
@@ -20,16 +21,17 @@ def on_key_press(key):
                 current_state = "loop"
             else:
                 current_state = "show"
+                show.play_show()
 
             udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
-            print("State switched to: ", current_state, " mode")
+            print("State Switched To --> ", current_state, " mode")
         elif key.char == "6":
             if current_state == "loop":
                 udp_socket.sendto("shutdown".encode('utf-8'), (IP, PORT))
                 print("Venue Shutdown Mode.")
                 print("Press Ctrl+c to close State Controller...")
             else:
-                print("Currently in show mode.)
+                print("Currently in show mode.")
                 print("To begin venue shutdown, switch to loop mode first (press 1) and try again...")
 
 def on_key_release(key):
@@ -48,11 +50,13 @@ udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 keyboard_listener = keyboard.Listener(on_press=on_key_press, on_release=on_key_release)
 keyboard_listener.start()
 
-print("State Controller Started... (Press 1 to toggle Loop/Show mode, 0 to end show early, 6 to begin venue shutdown)")
+show = Show()
+print("State Controller Started...\n(Press 1 to toggle Loop/Show mode, 0 to end show early, 6 to begin venue shutdown)")
 
 try:
     while True:
-        time.sleep(1)
+        if current_state == "loop":
+            time.sleep(1)
 except KeyboardInterrupt: 
     keyboard_listener.stop()
     keyboard_listener.join()
