@@ -28,7 +28,7 @@ def generate_sparkle_frame(num_channels, time_factor):
     for _ in range(num_sparkles):
         channel = random.randint(0, num_channels - 1)
         # Use time_factor to simulate slow movement (shift over time)
-        frame[channel] = random.randint(200, 255) * (math.sin(time_factor * 2 * math.pi) + 1) / 2  # Smooth modulation
+        frame[channel] = int(random.randint(200, 255) * (math.sin(time_factor * 2 * math.pi) + 1) / 2)  # Smooth modulation
     return frame
 
 # Perlin Noise: Smooth noise for gradual transitions, with Z-space movement

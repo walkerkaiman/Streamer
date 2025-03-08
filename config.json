@@ -1,15 +1,15 @@
 {
-  "UDP Port": 6454,
-  "Broadcast UDP IP": "192.168.1.255",
+  "UDP Port": 5005,
+  "Broadcast UDP IP": "192.168.4.84",
   "Show Frame Rate": 30,
-  "Show Filename": "SmallShow.csv",
+  "Show Filename": "testShowSparkle.csv",
   "Nodes": [
     {
       "Name": "Tree Fairy Lights",
       "Location": "Hanging in tree",
-      "IP Address": "192.168.1.10",
-      "Universes": [1, 2],
-      "Channels per Universe": [300, 512],
+      "IP Address": "192.168.4.84",
+      "Universes": [1],
+      "Channels per Universe": [300],
       "Included in show?": true
     },
     {

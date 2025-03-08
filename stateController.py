@@ -1,4 +1,4 @@
-import time, os, socket, json
+import time, os, socket, json, threading, sys
 from pynput import keyboard
 from shows.showPlayer import Show
 
@@ -7,32 +7,48 @@ def load_config(file):
     with open(file, "r") as f:
         return json.load(f)
 
+def show_complete_callback():
+    global current_state
+
+    print("\nShow Finished!")
+
+    current_state = "loop"
+    udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
+    print("Entering Loop Mode...\n")
+
+
 def on_key_press(key):
-    global current_state, IP, PORT
+    global current_state, IP, PORT, show_thread
 
-    if hasattr(key, "char"): 
+    if hasattr(key, "char"):
         if key.char == "0" and current_state == "show":
-            show.stop_show()            
-            current_state = "loop"            
+            show.stop_show()
+            if show_thread and show_thread.is_alive():
+                show_thread.join(timeout=5)  # Allow thread to exit
+            
+            current_state = "loop"
+            print("\nState Switched To -->", current_state, "mode")
             udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
-            print("Show manually ended early. Returning to loop mode.")
         elif key.char == "1":
-            if current_state == "show":
-                current_state = "loop"
-            else:
+            if current_state == "loop":
                 current_state = "show"
-                show.play_show()
-
-            udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
-            print("State Switched To --> ", current_state, " mode")
+                udp_socket.sendto(current_state.encode('utf-8'), (IP, PORT))
+                print("\nState Switched To -->", current_state, "mode")
+                
+                show_end_event = threading.Event()
+                show_thread = threading.Thread(target=show.play_show(show_complete_callback), daemon=True)
+                show_thread.start()
+                show_thread.join()
+                
         elif key.char == "6":
             if current_state == "loop":
-                udp_socket.sendto("shutdown".encode('utf-8'), (IP, PORT))
-                print("Venue Shutdown Mode.")
-                print("Press Ctrl+c to close State Controller...")
+                try:
+                    udp_socket.sendto("shutdown".encode('utf-8'), (IP, PORT))
+                except OSError as e:
+                    print(f"Network error: {e}")
+                print("\nVenue Shutdown Mode.")
             else:
-                print("Currently in show mode.")
-                print("To begin venue shutdown, switch to loop mode first (press 1) and try again...")
+                print("Switch to loop mode first before shutting down.")
 
 def on_key_release(key):
     pass
@@ -51,14 +67,24 @@ keyboard_listener = keyboard.Listener(on_press=on_key_press, on_release=on_key_r
 keyboard_listener.start()
 
 show = Show()
+show_thread = None  # Thread reference
+
 print("State Controller Started...\n(Press 1 to toggle Loop/Show mode, 0 to end show early, 6 to begin venue shutdown)")
 
 try:
     while True:
-        if current_state == "loop":
-            time.sleep(1)
-except KeyboardInterrupt: 
+        time.sleep(1)  # Prevent high CPU usage
+except KeyboardInterrupt:
+    print("\nKeyboardInterrupt received. Shutting down...")
     keyboard_listener.stop()
     keyboard_listener.join()
-finally:
+    if show_thread and show_thread.is_alive():
+        show.stop_show()
+        try:
+            show.sender.stop()  # Gracefully stop the sACN sender
+        except Exception as e:
+            print("Error stopping sACN sender:", e)
+        show_thread.join(timeout=5)
+    udp_socket.close()
     print("State Controller is closed.")
+    os._exit(0)
