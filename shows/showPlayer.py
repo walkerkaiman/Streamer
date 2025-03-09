@@ -43,6 +43,7 @@ class Show:
 
     def play_show(self, finished_callback):
         self._stop_event.clear()  # Ensure the stop event is cleared
+        self.show_data = self.load_show_from_csv(self.config['Show Filename'])
         data_length = len(self.show_data)
         current_row = 0
 
