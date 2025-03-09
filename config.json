@@ -2,7 +2,7 @@
   "UDP Port": 5005,
   "Broadcast UDP IP": "192.168.4.84",
   "Show Frame Rate": 30,
-  "Show Filename": "PerlinChase_300_frames.csv",
+  "Show Filename": "littleSparkle.csv",
   "Nodes": [
     {
       "Name": "Tree Fairy Lights",
